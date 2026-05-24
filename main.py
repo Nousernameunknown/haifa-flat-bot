@@ -126,6 +126,6 @@ app = Application.builder().token(TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
 
-print("BOT STARTED")
+print("STARTING BOT")
 
 app.run_polling()

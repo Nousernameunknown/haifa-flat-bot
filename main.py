@@ -9,63 +9,101 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 bot = Bot(token=TOKEN)
 
-URL = "https://www.yad2.co.il/realestate/rent"
+SEARCH_URL = "https://www.yad2.co.il/realestate/rent?city=4000"
 
-seen = set()
+seen_ads = set()
 
 GOOD_AREAS = [
     "כרמל",
     "אחוזה",
     "כרמל צרפתי",
     "כרמליה",
-    "רמת אשכול"
+    "רמת אשכול",
+    "רמת בגין"
 ]
 
 BAD_AREAS = [
     "הדר",
     "חליסה",
     "קרית אליעזר",
-    "בת גלים"
+    "בת גלים",
+    "נווה פז"
 ]
 
+GOOD_WORDS = [
+    "בעלי חיים",
+    "חתול",
+    "חיות",
+    "מרפסת",
+    "נוף",
+    "ממד"
+]
+
+BAD_WORDS = [
+    "ללא בעלי חיים",
+    "שותפים",
+    "לטווח קצר"
+]
+
+MAX_PRICE = 4800
+
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
 while True:
+
     try:
-        r = requests.get(URL)
 
-        soup = BeautifulSoup(r.text, "html.parser")
+        response = requests.get(
+            SEARCH_URL,
+            headers=headers,
+            timeout=20
+        )
 
-        ads = soup.find_all("a")
+        soup = BeautifulSoup(response.text, "html.parser")
 
-        for ad in ads:
+        text_blocks = soup.find_all(text=True)
 
-            text = ad.get_text(strip=True)
+        for text in text_blocks:
 
-            if len(text) < 30:
+            clean = text.strip()
+
+            if len(clean) < 80:
                 continue
 
-            if any(area in text for area in GOOD_AREAS):
+            if any(area in clean for area in GOOD_AREAS):
 
-                if not any(bad in text for bad in BAD_AREAS):
+                if any(bad in clean for bad in BAD_AREAS):
+                    continue
 
-                    if text not in seen:
+                if any(bad in clean for bad in BAD_WORDS):
+                    continue
 
-                        seen.add(text)
+                if clean in seen_ads:
+                    continue
 
-                        message = f"""
-🏠 Новая квартира
+                seen_ads.add(clean)
 
-{text}
+                message = f"""
+🏠 Найдена квартира
+
+{clean[:1000]}
 
 🔗 https://www.yad2.co.il/realestate/rent
 """
 
-                        bot.send_message(
-                            chat_id=CHAT_ID,
-                            text=message
-                        )
+                bot.send_message(
+                    chat_id=CHAT_ID,
+                    text=message
+                )
+
+                print("Sent:", clean[:100])
 
         time.sleep(600)
 
     except Exception as e:
-        print(e)
+
+        print("ERROR:", e)
+
         time.sleep(60)

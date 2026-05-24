@@ -113,4 +113,19 @@ print("BOT IS RUNNING")
 while True:
     time.sleep(60)
  
-    
+    from telegram.ext import Application, CommandHandler
+from telegram import Update
+from telegram.ext import ContextTypes
+
+TOKEN = "ТВОЙ_ТОКЕН"
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Бот работает ✅")
+
+app = Application.builder().token(TOKEN).build()
+
+app.add_handler(CommandHandler("start", start))
+
+print("BOT STARTED")
+
+app.run_polling()

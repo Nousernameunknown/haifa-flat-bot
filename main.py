@@ -107,7 +107,10 @@ while True:
         print("ERROR:", e)
 
         time.sleep(60)
-        print("BOT IS RUNNING")
+
+print("BOT IS RUNNING")
 
 while True:
-    pass
+    time.sleep(60)
+ 
+    

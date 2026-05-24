@@ -1,13 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-import telegram
+from telegram import Bot
 import os
 
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-bot = telegram.Bot(token=TOKEN)
+bot = Bot(token=TOKEN)
 
 URL = "https://www.yad2.co.il/realestate/rent"
 
@@ -31,11 +31,13 @@ BAD_AREAS = [
 while True:
     try:
         r = requests.get(URL)
+
         soup = BeautifulSoup(r.text, "html.parser")
 
         ads = soup.find_all("a")
 
         for ad in ads:
+
             text = ad.get_text(strip=True)
 
             if len(text) < 30:
